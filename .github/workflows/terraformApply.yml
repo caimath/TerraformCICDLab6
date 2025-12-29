@@ -53,11 +53,7 @@ jobs:
 
 
       - name: Terraform Init
-        run: terraform init \
-          -input=false \
-          -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" \
-          -backend-config="key=terraform.tfstate" \
-          -backend-config="region=${{ secrets.AWS_REGION }}"
+        run: terraform init -input=false -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" -backend-config="key=terraform.tfstate" -backend-config="region=${{ secrets.AWS_REGION }}"
 
       - name: Terraform fmt
         run: terraform fmt -check
