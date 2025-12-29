@@ -3,12 +3,83 @@ name: Apply Terraform
 on:
     push:
       branches: [main]
+      paths:
+        - '**.tf'
+        - '**.tfvars'
+        - '.github/workflows/terraformApply.yml'
     pull_request:
       branches: [main]
 
 env:
-  db_password: ${{ secrets.DB_PASSWORD }}
-  db_username: ${{ secrets.DB_USERNAME }}
+  # Terraform variables
+  TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+  TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
+  TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # S3 backend setup
+      - name: Create S3 backend config file
+        run: |
+          BUCKET_NAME=${{ secrets.S3_BACKEND_BUCKET }}
+          REGION=${{ secrets.AWS_REGION }}
+
+          if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
+            echo "S3 bucket exists"
+          else
+            echo "Creating S3 bucket"
+            aws s3api create-bucket \
+              --bucket "$BUCKET_NAME" \
+              --region "$REGION" \
+              --create-bucket-configuration LocationConstraint="$REGION"
+             aws s3api put-bucket-versioning --bucket "$BUCKET_NAME" --versioning-configuration Status=Enabled 
+          fi
+
+      # Terraform depploy
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+
+      - name: Terraform Init
+        run: terraform init \
+          -input=false \
+          -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" \
+          -backend-config="key=terraform.tfstate" \
+          -backend-config="region=${{ secrets.AWS_REGION }}"
+
+      - name: Terraform fmt
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform Validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan -no-color -input=false
+      
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve tfplan
+
+      - name: Show Output
+        run: terraform output
+
+        
+
+    
+
             

@@ -105,3 +105,12 @@ variable "mysql_port" {
   type        = number
   default     = 3306
 }
+#####################
+#GITHUB ACTIONS 
+#####################
+# CONFIG KEY PAIR for web server
+variable "ssh_public_key" {
+  description = "Public key for SSH access"
+  type        = string
+  sensitive   = true
+}
