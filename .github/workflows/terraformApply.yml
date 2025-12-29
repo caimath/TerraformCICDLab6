@@ -43,7 +43,7 @@ jobs:
           else
             echo "Creating S3 bucket"
             aws s3api create-bucket \
-              --bucket "$BUCKET_NAME" \
+              --bucket "$BUCKET_NAME"
              aws s3api put-bucket-versioning --bucket "$BUCKET_NAME" --versioning-configuration Status=Enabled 
           fi
 
