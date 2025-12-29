@@ -1,0 +1,11 @@
+.aws
+.terraform/
+.terraform*
+.terraform.lock.hcl
+*.tfstate
+*.tfplan
+*.tfstate.backup
+*.pem
+secrets.tfvars
+*.pub
+web-server-key

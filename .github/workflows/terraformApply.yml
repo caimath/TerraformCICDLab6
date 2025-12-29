@@ -1,0 +1,14 @@
+name: Apply Terraform
+
+on:
+    push:
+      branches: [main]
+    pull_request:
+      branches: [main]
+
+env:
+  db_password: ${{ secrets.DB_PASSWORD }}
+  db_username: ${{ secrets.DB_USERNAME }}
+
+jobs:
+            
