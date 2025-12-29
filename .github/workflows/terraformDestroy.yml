@@ -7,6 +7,7 @@ env:
   # Terraform variables
   TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
   TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
+  TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
 
 jobs:
   build:
