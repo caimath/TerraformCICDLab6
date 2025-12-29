@@ -47,34 +47,33 @@ jobs:
              aws s3api put-bucket-versioning --bucket "$BUCKET_NAME" --versioning-configuration Status=Enabled 
           fi
 
-      # Terraform depploy
+      # Install Terraform
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
-
+      # Initialize Terraform
       - name: Terraform Init
         run: terraform init -input=false -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" -backend-config="key=terraform.tfstate" -backend-config="region=${{ secrets.AWS_REGION }}"
 
+      # Formate files with terraform syntax
       - name: Terraform fmt
-        run: terraform fmt -check
+        run: terraform fmt
         continue-on-error: true
 
+      # Validate configuration
       - name: Terraform Validate
         run: terraform validate -no-color
 
+      # Create plan
       - name: Terraform Plan
         run: terraform plan -out=tfplan -no-color -input=false
       
+        # Apply plan
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve tfplan
 
+      #  Show outputs: vpc id, public subnet ids, web server public ip
       - name: Show Output
         run: terraform output
 
-        
-
-    
-
-
-            
