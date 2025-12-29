@@ -53,7 +53,7 @@ jobs:
 
       # Initialize Terraform
       - name: Terraform Init
-        run: terraform init -input=false -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" -backend-config="key=terraform.tfstate" -backend-config="region=${{ secrets.AWS_REGION }}"
+        run: terraform init -input=false -reconfigure -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" -backend-config="key=terraform.tfstate" -backend-config="region=${{ secrets.AWS_REGION }}"
 
       # Formate files with terraform syntax
       - name: Terraform fmt

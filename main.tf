@@ -9,7 +9,7 @@ terraform {
     }
   }
 
-backend "s3" {}
+  backend "s3" {}
 }
 
 # Configure AWS Provider
@@ -259,7 +259,7 @@ resource "aws_key_pair" "web_server_key" {
   public_key = var.ssh_public_key
   tags = {
     Name = "Key pair for web server access"
-  } 
+  }
 }
 
 
