@@ -9,6 +9,7 @@ on:
         - '.github/workflows/terraformApply.yml'
     pull_request:
       branches: [main]
+    workflow_dispatch:
 
 env:
   # Terraform variables
@@ -81,5 +82,6 @@ jobs:
         
 
     
+
 
             
