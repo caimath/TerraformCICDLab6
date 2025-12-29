@@ -1,0 +1,37 @@
+name: Destroy Terraform
+
+on:
+    workflow_dispatch:
+
+env:
+  # Terraform variables
+  TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+  TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Install Terraform
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+        # Initialize Terraform
+      - name: Terraform Init
+        run: terraform init -input=false -reconfigure -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" -backend-config="key=terraform.tfstate" -backend-config="region=${{ secrets.AWS_REGION }}"
+
+        # Destroy infrastructure
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve -no-color
